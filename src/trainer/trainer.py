@@ -104,26 +104,28 @@ class Trainer(BaseTrainer):
         argmax_texts_raw = [self.text_encoder.decode(inds) for inds in argmax_inds]
         argmax_texts = [self.text_encoder.ctc_decode(inds) for inds in argmax_inds]
 
-        beam_search_texts = []
+        # beam_search_texts = []
 
-        preds = log_probs.detach().numpy()
-        lengths = log_probs_length.detach().numpy()
+        # preds = log_probs.detach().numpy()
+        # lengths = log_probs_length.detach().numpy()
 
-        for log_prob, length in zip(preds, lengths):
-            bs_result = self.text_encoder.ctc_beam_search(log_prob[:length], 10)
-            beam_search_texts.append(bs_result[0][0])
+        # for log_prob, length in zip(preds, lengths):
+        #     bs_result = self.text_encoder.ctc_beam_search(log_prob[:length], 10)
+        #     beam_search_texts.append(bs_result[0][0])
 
         tuples = list(
-            zip(beam_search_texts, argmax_texts, text, argmax_texts_raw, audio_path)
+            zip(argmax_texts, text, argmax_texts_raw, audio_path)  # beam_search_texts
         )
 
         rows = {}
-        for beam_pred, pred, target, raw_pred, audio_path in tuples[:examples_to_log]:
+        for pred, target, raw_pred, audio_path in tuples[
+            :examples_to_log
+        ]:  # beam_pred,
             target = self.text_encoder.normalize_text(target)
             wer = calc_wer(target, pred) * 100
             cer = calc_cer(target, pred) * 100
-            beam_wer = calc_wer(target, beam_pred) * 100
-            beam_cer = calc_cer(target, beam_pred) * 100
+            # beam_wer = calc_wer(target, beam_pred) * 100
+            # beam_cer = calc_cer(target, beam_pred) * 100
 
             rows[Path(audio_path).name] = {
                 "target": target,
@@ -131,9 +133,9 @@ class Trainer(BaseTrainer):
                 "predictions": pred,
                 "wer": wer,
                 "cer": cer,
-                "beam search predictions": beam_pred,
-                "beam_wer": beam_wer,
-                "beam_cer": beam_cer,
+                # "beam search predictions": beam_pred,
+                # "beam_wer": beam_wer,
+                # "beam_cer": beam_cer,
             }
         self.writer.add_table(
             "predictions", pd.DataFrame.from_dict(rows, orient="index")
