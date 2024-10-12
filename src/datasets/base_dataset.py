@@ -84,10 +84,13 @@ class BaseDataset(Dataset):
         text = data_dict["text"]
         text_encoded = self.text_encoder.encode(text)
 
+        instance_data = {
+            "audio": audio,
+        }
+        instance_data = self.preprocess_data(instance_data)
         spectrogram = self.get_spectrogram(audio)
 
         instance_data = {
-            "audio": audio,
             "spectrogram": spectrogram,
             "text": text,
             "text_encoded": text_encoded,
@@ -97,7 +100,6 @@ class BaseDataset(Dataset):
         # TODO think of how to apply wave augs before calculating spectrogram
         # Note: you may want to preserve both audio in time domain and
         # in time-frequency domain for logging
-        instance_data = self.preprocess_data(instance_data)
 
         return instance_data
 
