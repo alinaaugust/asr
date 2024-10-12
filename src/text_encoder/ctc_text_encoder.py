@@ -1,7 +1,9 @@
 import re
+from collections import defaultdict
 from string import ascii_lowercase
 
 import torch
+from scipy.special import softmax
 
 # TODO add BPE, LM, Beam Search support
 # Note: think about metrics and encoder
@@ -78,3 +80,39 @@ class CTCTextEncoder:
         text = text.lower()
         text = re.sub(r"[^a-z ]", "", text)
         return text
+
+    def _expand_and_merge_path(self, state, next_token_probs):
+        new_state = defaultdict(float)
+        for ind, next_token_prob in enumerate(next_token_probs):
+            cur_char = self.ind2char[ind]
+            for (prefix, last_char), prob in state.items():
+                if last_char == cur_char:
+                    new_prefix = prefix
+                elif cur_char != self.EMPTY_TOK:
+                    new_prefix = prefix + cur_char
+                else:
+                    new_prefix = prefix
+                new_state[(new_prefix, cur_char)] += prob * next_token_prob
+        return new_state
+
+    def _truncate_paths(self, state, beam_size):
+        return dict(sorted(list(state.items()), key=lambda x: -x[1])[:beam_size])
+
+    def ctc_beam_search(self, probs, beam_size):
+        state = {
+            ("", self.EMPTY_TOK): 1.0,
+        }
+
+        probs = softmax(probs, axis=1)
+
+        for prob in probs:
+            state = self._expand_and_merge_path(state, prob)
+            state = self._truncate_paths(state, beam_size)
+
+        clean_result = defaultdict(float)
+        for (prefix, last_char), prob in state.items():
+            clean_sentence = (prefix + last_char).strip().replace(self.EMPTY_TOK, "")
+            clean_result[clean_sentence] += prob
+
+        clean_result = sorted(clean_result.items(), key=lambda x: -x[1])
+        return [(sentence, prob) for sentence, prob in clean_result]
