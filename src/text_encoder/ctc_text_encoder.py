@@ -95,10 +95,10 @@ class CTCTextEncoder:
                 new_state[(new_prefix, cur_char)] += prob * next_token_prob
         return new_state
 
-    def _truncate_paths(self, state, beam_size):
+    def _truncate_paths(self, state, beam_size=10):
         return dict(sorted(list(state.items()), key=lambda x: -x[1])[:beam_size])
 
-    def ctc_beam_search(self, probs, beam_size):
+    def ctc_beam_search(self, probs, beam_size=10):
         state = {
             ("", self.EMPTY_TOK): 1.0,
         }

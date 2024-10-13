@@ -30,9 +30,14 @@ class ArgmaxWERMetric(BaseMetric):
         return sum(wers) / len(wers)
 
 
-class BeamSerchWERMetric(BaseMetric):
+class BeamSearchWERMetric(BaseMetric):
     def __init__(
-        self, text_encoder: CTCTextEncoder, beam_size, lm_usage=False, *args, **kwargs
+        self,
+        text_encoder: CTCTextEncoder,
+        beam_size=10,
+        lm_usage=False,
+        *args,
+        **kwargs
     ):
         super().__init__(*args, **kwargs)
         self.text_encoder = text_encoder

@@ -30,9 +30,14 @@ class ArgmaxCERMetric(BaseMetric):
         return sum(cers) / len(cers)
 
 
-class BeamSerchCERMetric(BaseMetric):
+class BeamSearchCERMetric(BaseMetric):
     def __init__(
-        self, text_encoder: CTCTextEncoder, beam_size, lm_usage=False, *args, **kwargs
+        self,
+        text_encoder: CTCTextEncoder,
+        beam_size=10,
+        lm_usage=False,
+        *args,
+        **kwargs
     ):
         super().__init__(*args, **kwargs)
         self.text_encoder = text_encoder
