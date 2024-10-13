@@ -7,11 +7,6 @@ import torch
 from pyctcdecode import build_ctcdecoder
 from scipy.special import softmax
 
-# TODO add BPE, LM, Beam Search support
-# Note: think about metrics and encoder
-# The design can be remarkably improved
-# to calculate stuff more efficiently and prettier
-
 
 class CTCTextEncoder:
     EMPTY_TOK = ""
@@ -46,7 +41,7 @@ class CTCTextEncoder:
             self.beam_search_lm = build_ctcdecoder(
                 [""] + [char for char in lm_alphabet],
                 kenlm_model_path=self.kenlm_path,
-                alpha=0.6,
+                alpha=0.5,
                 beta=0.2,
             )
 
@@ -140,8 +135,10 @@ class CTCTextEncoder:
         return [(sentence, prob) for sentence, prob in clean_result]
 
     def beam_search_result(self, probs, beam_size=10):
+        if isinstance(probs, torch.Tensor):
+            probs = probs.cpu().detach().numpy()
         if self.use_lm:
-            return self.beam_search_lm.decode(softmax(probs, axis=1), beam_size)[0][0]
-        bs_result = self.text_encoder._ctc_beam_search(probs, self.beam_size)
+            return self.beam_search_lm.decode(softmax(probs, axis=1), beam_size)
+        bs_result = self.text_encoder._ctc_beam_search(probs, beam_size)
         pred_text = bs_result[0][0]
         return pred_text

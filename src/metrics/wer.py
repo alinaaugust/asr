@@ -7,10 +7,6 @@ from src.metrics.base_metric import BaseMetric
 from src.metrics.utils import calc_wer
 from src.text_encoder.ctc_text_encoder import CTCTextEncoder
 
-# TODO beam search / LM versions
-# Note: they can be written in a pretty way
-# Note 2: overall metric design can be significantly improved
-
 
 class ArgmaxWERMetric(BaseMetric):
     def __init__(self, text_encoder, *args, **kwargs):
@@ -47,9 +43,6 @@ class BeamSearchWERMetric(BaseMetric):
     def __call__(
         self, log_probs: Tensor, log_probs_length: Tensor, text: List[str], **kwargs
     ):
-        # if self.lm_usage:
-        #     fmdkfmd
-
         wers = []
         preds = log_probs.cpu().detach().numpy()
         lengths = log_probs_length.cpu().detach().numpy()

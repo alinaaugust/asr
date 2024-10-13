@@ -1,5 +1,5 @@
 _target_: src.logger.WandBWriter
-project_name: "dla_asr"
+project_name: "hw_asr"
 entity: null
 run_name: "check augs"
 mode: "online"
