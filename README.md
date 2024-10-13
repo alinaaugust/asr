@@ -1,16 +1,19 @@
-# Automatic Speech Recognition (ASR) with PyTorch
+# Automatic Speech Recognition (ASR) 
 
 <p align="center">
   <a href="#about">About</a> •
   <a href="#installation">Installation</a> •
   <a href="#how-to-use">How To Use</a> •
+  <a href="#final-metrics">Final Metrics</a> •
   <a href="#credits">Credits</a> •
   <a href="#license">License</a>
 </p>
 
 ## About
 
-This repository contains a template for solving ASR task with PyTorch. This template branch is a part of the [HSE DLA course](https://github.com/markovka17/dla) ASR homework. Some parts of the code are missing (or do not follow the most optimal design choices...) and students are required to fill these parts themselves (as well as writing their own models, etc.).
+This repository contains my implementation of DeepSpeech2. The model has been trained for 91 epochs, which is approximately 12 hours, on the LibriSpeech dataset.
+
+More details with the description of the model, experiments runs and parameters used can be found in my report [here](https://api.wandb.ai/links/aavgustyonok/rxllkqko).
 
 See the task assignment [here](https://github.com/markovka17/dla/tree/2024/hw1_asr).
 
@@ -49,26 +52,27 @@ Follow these steps to install the project:
    pip install -r requirements.txt
    ```
 
-2. Install `pre-commit`:
+2. Download deepspeech and language model weights:
    ```bash
-   pre-commit install
+   python get_weights.py
    ```
 
 ## How To Use
 
-To train a model, run the following command:
-
-```bash
-python3 train.py -cn=CONFIG_NAME HYDRA_CONFIG_ARGUMENTS
-```
-
-Where `CONFIG_NAME` is a config from `src/configs` and `HYDRA_CONFIG_ARGUMENTS` are optional arguments.
-
 To run inference (evaluate the model or save predictions):
 
 ```bash
-python3 inference.py HYDRA_CONFIG_ARGUMENTS
+python inference.py HYDRA_CONFIG_ARGUMENTS
 ```
+By default (without any additional arguments) inference is run on the LibriSpeech test-other dataset. If you want to test the model on the test-other data, you need to specify corresponding parameter (it can be also found in src/configs/datasets/test.yaml). Be careful with the paths to the directories with models weights (by default they will be saved in asr/saved directory, as can be seen in inference.yaml). 
+
+## Final Metrics
+
+|Method|WER test-clean| WER test-other |
+|------|--------------|----------------|
+|basic model| 18.4 | 39.5 |
+|basic model + my beam search | 17.9 | 38.9 |
+| basic model + lm beam search | 11.2 | 29.1 |
 
 ## Credits
 
