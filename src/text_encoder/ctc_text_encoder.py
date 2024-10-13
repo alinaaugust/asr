@@ -103,6 +103,8 @@ class CTCTextEncoder:
             ("", self.EMPTY_TOK): 1.0,
         }
 
+        if isinstance(probs, torch.Tensor):
+            probs = probs.cpu().detach().numpy()
         probs = softmax(probs, axis=1)
 
         for prob in probs:

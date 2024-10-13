@@ -51,8 +51,8 @@ class BeamSearchWERMetric(BaseMetric):
         #     fmdkfmd
 
         wers = []
-        preds = log_probs.detach().numpy()
-        lengths = log_probs_length.detach().numpy()
+        preds = log_probs.cpu().detach().numpy()
+        lengths = log_probs_length.cpu().detach().numpy()
 
         for log_prob, length, target in zip(preds, lengths, text):
             target = self.text_encoder.normalize_text(target)

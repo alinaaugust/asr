@@ -133,6 +133,7 @@ class Trainer(BaseTrainer):
                 "predictions": pred,
                 "wer": wer,
                 "cer": cer,
+                "audio": self.writer.wandb.Audio(audio_path),
                 # "beam search predictions": beam_pred,
                 # "beam_wer": beam_wer,
                 # "beam_cer": beam_cer,

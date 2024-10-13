@@ -7,10 +7,14 @@ train:
     transforms:
       - _target_: src.transforms.wav_augs.Gain
         p: 0.25
+        sample_rate: 16000
       - _target_: torchvision.transforms.v2.RandomChoice
         transforms:
         - _target_: src.transforms.wav_augs.Noise
-        - _target_: src.transforms.wav_augs.PitchShift
+          sample_rate: 16000
+        - _target_: src.transforms.wav_augs.Volume
+          gain: 2.0
+          gain_type: "amplitude"
         - _target_: src.transforms.spec_augs.FrequencyMasking  #time stretching?
           freq_mask_param: 15
           prob: 0.1
