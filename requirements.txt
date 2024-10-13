@@ -13,6 +13,9 @@ wandb
 wget
 comet_ml
 hydra-core
+gdown
+pyctcdecode
+kenlm
 
 black
 isort

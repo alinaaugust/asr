@@ -12,15 +12,17 @@ train:
         transforms:
         - _target_: src.transforms.wav_augs.Noise
           sample_rate: 16000
+          prob: 0.5
         - _target_: src.transforms.wav_augs.Volume
           gain: 2.0
           gain_type: "amplitude"
+          prob: 0.5
         - _target_: src.transforms.spec_augs.FrequencyMasking  #time stretching?
           freq_mask_param: 15
-          prob: 0.1
+          prob: 0.5
         - _target_: src.transforms.spec_augs.TimeMasking
           time_mask_param: 15
-          prob: 0.1
+          prob: 0.5
 inference:
   get_spectrogram:
     _target_: torchaudio.transforms.MelSpectrogram

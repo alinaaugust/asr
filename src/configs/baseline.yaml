@@ -1,10 +1,8 @@
 defaults:
-  - model: deepspeech2 # baseline
-  # - model: baseline
+  - model: deepspeech2
   - writer: wandb
   - metrics: example
-  # - datasets: example
-  - datasets: onebatchtest
+  - datasets: test
   - dataloader: example
   - transforms: example_only_instance
   - _self_

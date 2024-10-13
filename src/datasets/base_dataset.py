@@ -91,13 +91,14 @@ class BaseDataset(Dataset):
         instance_data = self.preprocess_data(instance_data)
         spectrogram = self.get_spectrogram(instance_data["audio"])
 
-        instance_data = {
-            "audio": audio,
-            "spectrogram": spectrogram,
-            "text": text,
-            "text_encoded": text_encoded,
-            "audio_path": audio_path,
-        }
+        instance_data.update(
+            {
+                "spectrogram": spectrogram,
+                "text": text,
+                "text_encoded": text_encoded,
+                "audio_path": audio_path,
+            }
+        )
 
         # TODO think of how to apply wave augs before calculating spectrogram
         # Note: you may want to preserve both audio in time domain and

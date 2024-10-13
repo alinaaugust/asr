@@ -2,7 +2,9 @@ import re
 from collections import defaultdict
 from string import ascii_lowercase
 
+import kenlm
 import torch
+from pyctcdecode import build_ctcdecoder
 from scipy.special import softmax
 
 # TODO add BPE, LM, Beam Search support
@@ -14,7 +16,13 @@ from scipy.special import softmax
 class CTCTextEncoder:
     EMPTY_TOK = ""
 
-    def __init__(self, alphabet=None, **kwargs):
+    def __init__(
+        self,
+        alphabet=None,
+        use_lm=False,
+        kenlm_path="saved/lowercase_3-gram.pruned.1e-7.arpa",
+        **kwargs,
+    ):
         """
         Args:
             alphabet (list): alphabet for language. If None, it will be
@@ -29,6 +37,18 @@ class CTCTextEncoder:
 
         self.ind2char = dict(enumerate(self.vocab))
         self.char2ind = {v: k for k, v in self.ind2char.items()}
+
+        self.use_lm = use_lm
+
+        if self.use_lm:
+            lm_alphabet = ascii_lowercase + " "
+            self.kenlm_path = kenlm_path
+            self.beam_search_lm = build_ctcdecoder(
+                [""] + [char for char in lm_alphabet],
+                kenlm_model_path=self.kenlm_path,
+                alpha=0.6,
+                beta=0.2,
+            )
 
     def __len__(self):
         return len(self.vocab)
@@ -98,7 +118,7 @@ class CTCTextEncoder:
     def _truncate_paths(self, state, beam_size=10):
         return dict(sorted(list(state.items()), key=lambda x: -x[1])[:beam_size])
 
-    def ctc_beam_search(self, probs, beam_size=10):
+    def _ctc_beam_search(self, probs, beam_size=10):
         state = {
             ("", self.EMPTY_TOK): 1.0,
         }
@@ -118,3 +138,10 @@ class CTCTextEncoder:
 
         clean_result = sorted(clean_result.items(), key=lambda x: -x[1])
         return [(sentence, prob) for sentence, prob in clean_result]
+
+    def beam_search_result(self, probs, beam_size=10):
+        if self.use_lm:
+            return self.beam_search_lm.decode(softmax(probs, axis=1), beam_size)[0][0]
+        bs_result = self.text_encoder._ctc_beam_search(probs, self.beam_size)
+        pred_text = bs_result[0][0]
+        return pred_text
